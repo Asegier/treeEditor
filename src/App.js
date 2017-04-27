@@ -1,25 +1,28 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
+//import logo from './logo.svg';
 import './App.css';
-import createBox from './components/createBox'
+// import createBox from './components/BoxForm'
+import { Provider } from 'react-redux';
+import Tree from './components/Tree'
+import TreeTemplate from 'react-ui-tree'
+
 // var bootstrap = require('react-bootstrap')
 
-
-
+import { initStore } from './store/store'
+const store = initStore();
 
 class App extends Component {
 
-    addBoxDetails = (details) => {
 
-    }
 
 
 
     render() {
         return (
-            <div className="App">
-                <createBox addBoxDetails={this.addBoxDetails.bind(this)}/>
-            </div>
+            <Provider store={store}>
+                <Tree/>
+
+            </Provider>
         );
     }
 }

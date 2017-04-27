@@ -5,7 +5,7 @@ export var branchReducer = (state = {}, action) => {
         default:
             return state;
     }
-}
+};
 
 // export var recipeShowReducer = (
 //     state = [], action) => {
@@ -33,5 +33,5 @@ export var branchReducer = (state = {}, action) => {
 //
 //     }
 
-}
+// }
 

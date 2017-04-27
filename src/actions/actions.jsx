@@ -1,6 +1,6 @@
 
 
-export var search = (branch) => {
+export var createBranch = (branch) => {
     return {
         type: 'CREATE_BRANCH',
         branch

@@ -3,10 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "axios": "^0.16.1",
     "react": "^15.5.4",
     "react-bootstrap": "^0.30.10",
     "react-dom": "^15.5.4",
     "react-redux": "^5.0.4",
+    "react-ui-tree": "^2.6.0",
     "redux": "^3.6.0"
   },
   "devDependencies": {
