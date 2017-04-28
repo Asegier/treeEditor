@@ -90,35 +90,6 @@ class BoxForm extends Component {
         console.log('Tree:', root);
         this.setState({branchTree: root});
 
-    }
-
-
-
-    handleName = (e) => {
-
-
-
-    };
-    handleFrom = (e) => {
-
-
-    };
-    handleTo = (e) => {
-
-
-    };
-
-    handleOptions = (e) => {
-
-
-    };
-    handleMessage = (e) => {
-
-
-    };
-    handleListen = (e) => {
-
-
     };
 
     onSubmit = (e) => {
@@ -131,6 +102,15 @@ class BoxForm extends Component {
         }
         if(!this.rootfromEl.value){
             errors.push("Please fill the From Element");
+        }
+        if(!this.roottoEl.value){
+            errors.push("Please fill the To Element");
+        }
+        if(!this.rootmessageEl.value){
+            errors.push("Please fill the Message Element");
+        }
+        if(!this.rootlistenEl.value){
+            errors.push("Please fill the Listen Element");
         }
 
         if(errors.length){
@@ -156,11 +136,11 @@ class BoxForm extends Component {
         branches.push(newBranch);
         this.setState({branches});
 
-        axios.post('/tree', this.state.branches).then(function(response){
-
-        }).catch(function(error){
-            //Some error occurred
-        });
+        // axios.post('/tree', this.state.branches).then(function(response){
+        //
+        // }).catch(function(error){
+        //     //Some error occurred
+        // });
 
 
     };
@@ -181,11 +161,11 @@ class BoxForm extends Component {
         console.log('Flat tree:', flatTree)
 
 
-        axios.post('/tree', flatTree).then(function(response){
-
-        }).catch(function(error){
-            //Some error occurred
-        });
+        // axios.post('/tree', flatTree).then(function(response){
+        //
+        // }).catch(function(error){
+        //     //Some error occurred
+        // });
 
     }
 
