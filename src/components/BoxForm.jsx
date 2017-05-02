@@ -6,7 +6,8 @@ import { connect } from 'react-redux';
 import Tree from 'react-ui-tree'
 import { flatten } from './utils';
 import EditingForm from './EditingForm'
-import 
+
+const axios = require('axios');
 
 const uuidV1 = require('uuid/v1');
 
@@ -210,7 +211,13 @@ class BoxForm extends Component {
         ]
         this.setState({branchTree: this.arrayToTree(branches)});
 
-
+        axios.get('http://192.168.88.101:3000/api/script.get')
+            .then(function (response) {
+                console.log("AXIOSSSS!!!", response);
+            })
+            .catch(function (error) {
+                console.log("AXIOSSSSS ERRORR :(", error);
+            });
 
     };
 
