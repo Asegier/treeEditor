@@ -5,6 +5,8 @@ import { connect } from 'react-redux';
 // import fire from '../fire'
 import Tree from 'react-ui-tree'
 import { flatten } from './utils';
+import EditingForm from './EditingForm'
+import 
 
 const uuidV1 = require('uuid/v1');
 
@@ -19,9 +21,8 @@ class BoxForm extends Component {
             current: "",
             editing: "",
             branchTree: [],
-            isTreeDisplay: true
-
-
+            isTreeDisplay: true,
+            newListeners: [{}]
         }
 
 
@@ -134,7 +135,10 @@ class BoxForm extends Component {
             name: "ONE",
             from: "left",
             botMsg: "How are you doing",
-            listener: ["1", "2"],
+            listener: [{
+                toState: "",
+                usrResponse: ""
+            }],
             type: "search"
         },{
             id: "2",
@@ -142,7 +146,10 @@ class BoxForm extends Component {
             name: "TWO",
             from: "left",
             botMsg: "sfsdfasdf",
-            listener: [],
+            listener: [{
+                toState: "",
+                usrResponse: ""
+            }],
             type: ""
         },{
             id: "3",
@@ -150,11 +157,60 @@ class BoxForm extends Component {
             name: "THREE",
             from: "left",
             botMsg: "",
-            listener: [],
+            listener: [{
+                toState: "",
+                usrResponse: ""
+            }],
+            type: ""
+        },{
+            id: "4",
+            parentID: "3",
+            name: "FOUR",
+            from: "left",
+            botMsg: "",
+            listener: [{
+                toState: "",
+                usrResponse: ""
+            }],
+            type: ""
+        },{
+            id: "5",
+            parentID: "4",
+            name: "Five",
+            from: "left",
+            botMsg: "",
+            listener: [{
+                toState: "",
+                usrResponse: ""
+            }],
+            type: ""
+        },{
+            id: "6",
+            parentID: "5",
+            name: "Six",
+            from: "left",
+            botMsg: "",
+            listener: [{
+                toState: "",
+                usrResponse: ""
+            }],
+            type: ""
+        },{
+            id: "7",
+            parentID: "6",
+            name: "Seven",
+            from: "left",
+            botMsg: "",
+            listener: [{
+                toState: "",
+                usrResponse: ""
+            }],
             type: ""
         }
         ]
         this.setState({branchTree: this.arrayToTree(branches)});
+
+
 
     };
 
@@ -170,15 +226,15 @@ class BoxForm extends Component {
         if(!this.rootfromEl.value){
             errors.push("Please fill the From Element");
         }
-        if(!this.roottoEl.value){
-            errors.push("Please fill the To Element");
-        }
+        // if(!this.rootlistentoStateEl.value){
+        //     errors.push("Please fill the Listener toState Element");
+        // }
         if(!this.rootbotMsgEl.value){
             errors.push("Please fill the Message Element");
         }
-        if(!this.rootlistenEl.value){
-            errors.push("Please fill the Listen Element");
-        }
+        // if(!this.rootlistenusrResponseEl.value){
+        //     errors.push("Please fill the Listener usrResponse Element");
+        // }
 
         if(errors.length){
             this.setState({errors});
@@ -191,12 +247,18 @@ class BoxForm extends Component {
 
         let newBranch = {
             id: uuidV1(),
-            parentID: this.rootParentEl.value,
             name: this.rootNameEl.value,
             from: this.rootfromEl.value,
             botMsg: "",
             listener: []
         }
+
+        this.state.newListeners.map((listener, i) => {
+            newBranch.listener.push({
+                toState: this[`rootlistentoStateEl_${i}`].value,
+                usrResponse: this[`rootlistenusrResponseEl_${i}`].value
+            })
+        })
 
 
         let branchTree = Object.assign({}, this.state.branchTree);
@@ -275,12 +337,15 @@ class BoxForm extends Component {
         </div>
     };
 
+    handleDropdown = (e) => {
+
+
+
+    }
+
     handleEdit = (item, e) => {
         console.log('Editing', item.name);
         this.setState({editing: item});
-
-        this.rootEditNameEl && (this.rootEditNameEl.value = item.name);
-        this.rootEditfromEl && (this.rootEditfromEl.value = item.from);
 
 
     };
@@ -299,12 +364,12 @@ class BoxForm extends Component {
 
 
 
-    }
+    };
 
     handleCurrent = (item, e) => {
-        e.preventDefault()
+        e.preventDefault();
 
-        console.log('ITEM', item)
+        console.log('ITEM', item);
         this.setState({current: item})
     }
 
@@ -319,7 +384,7 @@ class BoxForm extends Component {
         //     //Some error occurred
         // });
 
-    }
+    };
 
     onEditSubmit = (e) => {
 
@@ -329,17 +394,21 @@ class BoxForm extends Component {
 
         editNode.name = this.rootEditNameEl.value;
         editNode.from = this.rootEditfromEl.value;
-        editNode.to = this.rootEdittoEl.value;
-        editNode.parentID = this.rootEditParentEl.value;
         editNode.botMsg = this.rootEditbotMsgEl.value;
-        editNode.listener = this.rootEditlistenEl.value;
-        console.log('[onEditSubmit]', editNode)
 
+
+        editNode.listener.forEach((listener, i) => {
+
+            listener.toState = this[`rootlistentoStateEl_${i}`].value;
+            listener.usrResponse = this[`rootlistenusrResponseEl_${i}`].value;
+        });
+        // editNode.listener[0].usrResponse = this.rootEditlistenValueEl.value
+        console.log('[onEditSubmit]', editNode)
 
         let branchTree = Object.assign({}, this.state.branchTree);
 
         branchTree = this.updateItemById(branchTree, editNode);
-        this.setState({branchTree, editing: ''});
+        this.setState({branchTree, editing: ' '});
 
 /*
         let branches =  this.state.branches.slice(0);
@@ -353,130 +422,112 @@ class BoxForm extends Component {
 */
 
 
-
     }
 
+    onEditingFormSubmit = (editNode) => {
+        // save the date with setState etc.
+
+        let branchTree = Object.assign({}, this.state.branchTree);
+
+        branchTree = this.updateItemById(branchTree, editNode);
+
+        console.log('UPDATED TREE', branchTree)
+        this.setState({branchTree, editing: ''});
+    }
+
+    handleAddNewListener = (e) => {
+        e.preventDefault();
+        let newListeners = this.state.newListeners.slice(0);
+        newListeners.push({});
+        this.setState({      newListeners     })
+    }
 
     render() {
 
+        console.log("this.state.")
 
         return (
 
             <div>
 
-                { !!this.state.isTreeDisplay && <Tree
-                    className="Tree treewrapper"
-                    paddingLeft={40}              // left padding for children nodes in pixels
-                    tree={this.state.branchTree}        // tree object
-                    onChange={this.handleChange}  // onChange(tree) tree object changed
-                    renderNode={this.renderNode}  // renderNode(node) return react element
-                /> }
-                <div className="everythingelse">
+                { !!this.state.isTreeDisplay && (
+                    <div className="treewrapper">
+                        <Tree
+                            className="Tree"
+                            paddingLeft={40}              // left padding for children nodes in pixels
+                            tree={this.state.branchTree}        // tree object
+                            onChange={this.handleChange}  // onChange(tree) tree object changed
+                            renderNode={this.renderNode}  // renderNode(node) return react element
+                        />
+                    </div>
+                ) }
+                <div className="everythingelse row">
                     <div>{ this.state.errors.length > 0 ? this.state.errors.map( error => {
                         return <div key={error} className="error">{error}</div>
                     }) : '' }</div>
 
-                    <div>{ this.state.current != "" ? <div>
+                    <div className="col-md-2">{ this.state.current != "" ? <div>
                             <div>Name: {this.state.current.name}</div>
                             <div>From: {this.state.current.from}</div>
                             <div>To: {this.state.current.to}</div>
-                            <div>Parent Branch: {this.state.current.parentID}</div>
+                            {/*<div>Parent Branch: {this.state.current.parentID}</div>*/}
                             <div>Message: {this.state.current.botMsg}</div>
-                            <div>Listen For: {this.state.current.listener}</div>
+                            <div>Listen For: {this.state.current.listener.map( item => {
+                                return <div key={item.toState}>{item.toState}</div>
+                            })}</div>
                         </div>
 
                         : ''}
                     </div>
 
+                    <EditingForm
+                        onSubmit={this.onEditingFormSubmit}
+                        editing={this.state.editing}
+                    />
 
-                    {/*EDITING FORM */}
-                    { this.state.editing != "" ? (
+                    <div className="col-md-4"> <h3>Add:</h3>
                         <form className="boxForm"
-                              onSubmit={this.onEditSubmit}
+                              onSubmit={this.onSubmit}
                         >
-                            <div className="form-group">Name:
-                                <input className="form-control"
-                                    ref={el => this.rootEditNameEl = el}
-                                    defaultValue={this.state.editing.name}
-                                />hello
+                            <div>Name:
+                                <input
+                                    ref={el => this.rootNameEl = el}
+                                />
                             </div>
                             <div>From:
                                 <input
-                                    ref={el => this.rootEditfromEl = el}
-                                    defaultValue={this.state.editing.from}
-                                />
-                            </div>
-                            <div>To:
-                                <input
-                                    ref={el => this.rootEdittoEl = el}
-                                    defaultValue={this.state.editing.to}
-
-                                />
-                            </div>
-                            <div>Parent Branch:
-                                <input
-                                    ref={el => this.rootEditParentEl = el}
-                                    defaultValue={this.state.editing.parentID}
-
+                                    ref={el => this.rootfromEl = el}
                                 />
                             </div>
                             <div>Message:
                                 <input
-                                    ref={el => this.rootEditbotMsgEl = el}
-                                    defaultValue={this.state.editing.botMsg}
+                                    ref={el => this.rootbotMsgEl = el}
 
                                 />
                             </div>
-                            <div>Listen For:
-                                <input
-                                    ref={el => this.rootEditlistenEl = el}
-                                    defaultValue={this.state.editing.listener}
 
-                                /> Please input an array {uuidV1()}
-                            </div>
+                        { this.state.newListeners.map( (listener,i )=> {
+                            return (
+                                <div key={i}>Listen For:
+                                    <div> To State:
+                                        <input
+                                            ref={el => this[`rootlistentoStateEl_${i}`] = el}
+                                        />
+                                    </div>
+                                    <div> User Response:
+                                        <input
+                                            ref={el => this[`rootlistenusrResponseEl_${i}`] = el}
+                                        />
+                                    </div>
+                                </div>
+                            )
+                        } )}
+
+
+                            <a className="btn btn-default" onClick={this.handleAddNewListener}>Add New Listener</a>
                             <div><input type="submit"/></div>
-                        </form> ) : ''
-                    }
-
-                    <form className="boxForm"
-                          onSubmit={this.onSubmit}
-                    >
-                        <div>Name:
-                            <input
-                                ref={el => this.rootNameEl = el}
-                            />
-                        </div>
-                        <div>From:
-                            <input
-                                ref={el => this.rootfromEl = el}
-                            />
-                        </div>
-                        <div>To:
-                            <input
-                                ref={el => this.roottoEl = el}
-
-                            />
-                        </div>
-                        <div>Parent Branch:
-                            <input
-                                ref={el => this.rootParentEl = el}
-
-                            />
-                        </div>
-                        <div>Message:
-                            <input
-                                ref={el => this.rootbotMsgEl = el}
-
-                            />
-                        </div>
-                        <div>Listen For:
-                            <input
-                                ref={el => this.rootlistenEl = el}
-
-                            /> Please input an array {uuidV1()}
-                        </div>
-                        <div><input type="submit"/></div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
 
