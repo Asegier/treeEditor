@@ -128,3 +128,12 @@ body {
 .indentation {
   padding-left: 15px;
 }
+
+.m-node .inner > div >.btn {
+  opacity:0;
+  transition: opacity 0.3s
+}
+
+.m-node .inner:hover > div >.btn {
+  opacity: 1;
+}

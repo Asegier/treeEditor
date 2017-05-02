@@ -21,7 +21,7 @@ class BoxForm extends Component {
             errors: [],
             current: "",
             editing: "",
-            branchTree: [],
+            branchTree: {},
             isTreeDisplay: true,
             newListeners: [{}]
         }
@@ -35,38 +35,26 @@ class BoxForm extends Component {
         var idToNodeMap = {}; //Keeps track of nodes using id as key, for fast lookup
         var root = null; //Initially set our loop to null
 
-        //loop over data
-        flatArray.forEach(function(datum) {
-
-            //each node will have children, so let's give it a "children" poperty
-            datum.children = [];
-
-            //add an entry for this node to the map so that any future children can
-            //lookup the parent
-            idToNodeMap[datum.id] = datum;
-
-            //Does this node have a parent?
-            if(!datum.parentID) {
-                //Doesn't look like it, so this node is the root of the tree
-                root = datum;
-            } else {
-                //This node has a parent, so let's look it up using the id
-                let parentNode = idToNodeMap[datum.parentID];
-
-                //We don't need this property, so let's delete it.
-                //delete datum.parentAreaRef;
-
-                //Let's add the current node as a child of the parent node.
-                parentNode.children.push(datum);
+        flatArray.forEach(function(item) {
+            if(typeof item !== 'object'){ return; }
+            item.children = [];
+            idToNodeMap[item.id] = item;
+            if(!item.parentID || item.parentID===item.id ) {
+                root = idToNodeMap[item.id];
             }
         });
 
-        console.log('Tree:', root);
+        for(let key in idToNodeMap) {
+            let parentID = idToNodeMap[key].parentID;
+            if( idToNodeMap[parentID] && parentID!==idToNodeMap[key].id ){
+                idToNodeMap[parentID].children.push(idToNodeMap[key]);
+            }
+        }
 
         return root;
-
-
     }
+
+
 
 
     findItemById = (element, id) => {
@@ -121,6 +109,7 @@ class BoxForm extends Component {
         }
 
         console.log('[deleteItem]', element)
+        this.updateBackEnd(element)
         return element; // return the tree back
     }
 
@@ -208,19 +197,63 @@ class BoxForm extends Component {
             }],
             type: ""
         }
-        ]
-        this.setState({branchTree: this.arrayToTree(branches)});
+        ];
+        // this.setState({branchTree: this.arrayToTree(branches)});
 
-        axios.get('http://192.168.88.101:3000/api/script.get')
-            .then(function (response) {
-                console.log("AXIOSSSS!!!", response);
+
+        // axios({
+        //     method: 'POST',
+        //     url: 'http://localhost:3002/api/script.create',
+        //     data: {script: JSON.stringify(flatten(branches)), title: "botthing"},
+        //     headers:{
+        //         'Content-Type': 'application/json'
+        //
+        //     }
+        // })
+        //     .then((response) => {
+        //         console.log("response from axios put: ", response);
+        //     })
+        //     .catch((error) => {
+        //         console.log("response from axios put error: ", error)
+        //     });
+        //
+        // console.log("this.arrayToTree(branches)", this.arrayToTree(branches));
+
+        //var self = this;
+
+        axios.get('http://localhost:3002/api/script.get')
+            .then( response => {
+                console.log("AXIOSSSS!!!", response.data[0].script);
+                var branchTree = this.arrayToTree(JSON.parse(response.data[0].script));
+                //console.log("response.data[0].script:", JSON.parse(response.data[0].script).length)
+
+                console.log("correct data branchTree", branchTree);
+                this.setState({branchTree})
             })
-            .catch(function (error) {
+            .catch( error => {
                 console.log("AXIOSSSSS ERRORR :(", error);
             });
 
+        // axios({
+        //     method: 'PUT',
+        //     url: 'http://192.168.88.101:3000/api/script.update',
+        //     data: {script: JSON.stringify(branches)},
+        //     headers:{
+        //         'Content-Type': 'application/json',
+        //         '_id': '59070b1b44b9957e8f15f9ce',
+        //     }
+        // })
+        //     .then((response) => {
+        //         console.log("response from axios put: ", response);
+        //     })
+        //     .catch((error) => {
+        //     console.log("response from axios put error: ", error)
+        //     });
     };
 
+    componentDidMount = () => {
+        console.log("componentDidMount state.branchTree: ", this.state.branchTree)
+}
     // add new item
     onSubmit = (e) => {
         e.preventDefault();
@@ -250,7 +283,7 @@ class BoxForm extends Component {
         this.setState({errors:[]});
 
         // SUBMIT
-        console.log('Actually submit')
+        console.log('Actually submit');
 
         let newBranch = {
             id: uuidV1(),
@@ -258,14 +291,14 @@ class BoxForm extends Component {
             from: this.rootfromEl.value,
             botMsg: "",
             listener: []
-        }
+        };
 
         this.state.newListeners.map((listener, i) => {
             newBranch.listener.push({
                 toState: this[`rootlistentoStateEl_${i}`].value,
                 usrResponse: this[`rootlistenusrResponseEl_${i}`].value
             })
-        })
+        });
 
 
         let branchTree = Object.assign({}, this.state.branchTree);
@@ -273,6 +306,9 @@ class BoxForm extends Component {
 
 
         this.setState({branchTree});
+
+        // UPDATE THE DATABASE WITH THE NEW BRANCH
+        this.updateBackEnd(branchTree)
 
         /*
         console.log("rootParentEl", this.rootParentEl.value)
@@ -333,7 +369,7 @@ class BoxForm extends Component {
     renderNode = item => {
         //console.log('ITEM', item )
         return <div onClick={this.handleCurrent.bind(this, item)}>
-            {item.id} ({item.name})
+            {/*{item.id}*/} ({item.name})
             <button className="btn btn-default" onClick={this.handleEdit.bind(this, item)}>
                 <i className="fa fa-pencil" aria-hidden="true"></i>
             </button>
@@ -383,13 +419,7 @@ class BoxForm extends Component {
     handleChange = treeObject => {
         console.log(treeObject);
 
-        // persist to backend
-        // let flatTree = flatten(this.state.branchTree);
-        // axios.post('/tree', flatTree).then(function(response){
-        //
-        // }).catch(function(error){
-        //     //Some error occurred
-        // });
+        this.updateBackEnd(treeObject)
 
     };
 
@@ -431,6 +461,55 @@ class BoxForm extends Component {
 
     }
 
+    updateBackEnd = (tree) => {
+
+        let flat = flatten(tree);
+
+
+        console.log('POST PAYLOAD', flat);
+
+
+        // TEMP fix the payload
+        let arr = []
+        flat.forEach( item => {
+            for(let prop in item){
+                if(prop=='id'){
+                    arr.push(item);
+                    return;
+                }
+            }
+            for(let prop in item){
+                //return item[prop];
+                arr.push(item[prop])
+            }
+        });
+        flat = arr;
+
+        console.log('CORRECT POST PAYLOAD', flat);
+
+        let payload = JSON.stringify(flat);
+
+        //return; // STOP HERE
+
+
+        // UPDATE THE DATABASE WITH THE NEW BRANCH
+        axios({
+            method: 'PUT',
+            url: 'http://localhost:3002/api/script.update',
+            data: {script: payload},
+            headers:{
+                'Content-Type': 'application/json',
+                '_id': '59085002acd0a63cdf24842e',
+            }
+        })
+            .then((response) => {
+                console.log("response from axios put: ", response);
+            })
+            .catch((error) => {
+                console.log("response from axios put error: ", error)
+            });
+    }
+
     onEditingFormSubmit = (editNode) => {
         // save the date with setState etc.
 
@@ -438,8 +517,11 @@ class BoxForm extends Component {
 
         branchTree = this.updateItemById(branchTree, editNode);
 
-        console.log('UPDATED TREE', branchTree)
+        console.log('UPDATED TREE', branchTree);
         this.setState({branchTree, editing: ''});
+
+        this.updateBackEnd(branchTree);
+
     }
 
     handleAddNewListener = (e) => {
@@ -451,13 +533,13 @@ class BoxForm extends Component {
 
     render() {
 
-        console.log("this.state.")
+        console.log("this.state.", this.state.branchTree)
 
         return (
 
             <div>
 
-                { !!this.state.isTreeDisplay && (
+                { !!this.state.isTreeDisplay && !!this.state.branchTree && (
                     <div className="treewrapper">
                         <Tree
                             className="Tree"
