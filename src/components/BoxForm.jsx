@@ -1,11 +1,16 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-// import { getLink } from '../api/api';
-// import { idURL } from '../actions/actions';
-// import fire from '../fire'
 import Tree from 'react-ui-tree'
 import { flatten } from './utils';
 import EditingForm from './EditingForm'
+
+import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
+import AppBar from 'material-ui/AppBar';
+import {Card, CardActions, CardHeader, CardText, CardTitle } from 'material-ui/Card'
+
+import IconButton from 'material-ui/IconButton';
 
 const axios = require('axios');
 
@@ -54,9 +59,6 @@ class BoxForm extends Component {
         return root;
     }
 
-
-
-
     findItemById = (element, id) => {
         if(element.id == id){
             return element;
@@ -69,8 +71,6 @@ class BoxForm extends Component {
         }
         return null;
     }
-
-
 
     updateItemById = (element, updatedChild) => {
         console.log('[updateItemById] start', element, updatedChild)
@@ -112,9 +112,6 @@ class BoxForm extends Component {
         this.updateBackEnd(element)
         return element; // return the tree back
     }
-
-
-
 
 
     componentWillMount = () => {
@@ -221,7 +218,8 @@ class BoxForm extends Component {
 
         //var self = this;
 
-        axios.get('http://localhost:3002/api/script.get')
+        axios.get('http://localhost:3002/api/script.get') // personal
+        // axios.get('http://192.168.100.105:3003/api/script.get')
             .then( response => {
                 console.log("AXIOSSSS!!!", response.data[0].script);
                 var branchTree = this.arrayToTree(JSON.parse(response.data[0].script));
@@ -263,9 +261,9 @@ class BoxForm extends Component {
         if(!this.rootNameEl.value){
             errors.push("Please fill the Branch Element");
         }
-        if(!this.rootfromEl.value){
-            errors.push("Please fill the From Element");
-        }
+        // if(!this.rootfromEl.value){
+        //     errors.push("Please fill the From Element");
+        // }
         // if(!this.rootlistentoStateEl.value){
         //     errors.push("Please fill the Listener toState Element");
         // }
@@ -289,7 +287,8 @@ class BoxForm extends Component {
             id: uuidV1(),
             name: this.rootNameEl.value,
             from: this.rootfromEl.value,
-            botMsg: "",
+            botMsg: this.rootbotMsgEl.value,
+            options: this.rootoptionsEl.value,
             listener: []
         };
 
@@ -364,30 +363,39 @@ class BoxForm extends Component {
     };
 
 
-
     // Template for an item of the tree
     renderNode = item => {
         //console.log('ITEM', item )
-        return <div onClick={this.handleCurrent.bind(this, item)}>
-            {/*{item.id}*/} ({item.name})
-            <button className="btn btn-default" onClick={this.handleEdit.bind(this, item)}>
+        return <Card onClick={this.handleCurrent.bind(this, item)} title={item.name}>
+            <CardHeader title={item.name} />
+
+            <CardActions>
+                <IconButton
+                    onClick={this.handleEdit.bind(this, item)}
+                    iconClassName="fa fa-pencil"
+                />
+                <IconButton
+                    onClick={this.handleDelete.bind(this, item)}
+                    iconClassName="fa fa-times-circle"
+                />
+            </CardActions>
+            {/*<button className="btn btn-default" onClick={this.handleEdit.bind(this, item)}>
                 <i className="fa fa-pencil" aria-hidden="true"></i>
             </button>
             <button className="btn btn-default" onClick={this.handleDelete.bind(this, item)}>
                 <i className="fa fa-times-circle" aria-hidden="true"></i>
-            </button>
+            </button>*/}
 
-        </div>
+        </Card>
     };
 
     handleDropdown = (e) => {
 
 
-
     }
 
     handleEdit = (item, e) => {
-        console.log('Editing', item.name);
+        console.log('Editing', item);
         this.setState({editing: item});
 
 
@@ -432,6 +440,7 @@ class BoxForm extends Component {
         editNode.name = this.rootEditNameEl.value;
         editNode.from = this.rootEditfromEl.value;
         editNode.botMsg = this.rootEditbotMsgEl.value;
+        editNode.options = this.rootEditoptionsEl.value;
 
 
         editNode.listener.forEach((listener, i) => {
@@ -495,11 +504,13 @@ class BoxForm extends Component {
         // UPDATE THE DATABASE WITH THE NEW BRANCH
         axios({
             method: 'PUT',
-            url: 'http://localhost:3002/api/script.update',
+            url: 'http://192.168.100.105:3003/api/script.update', // UFO mongo
+            // url: 'http://localhost:3002/api/script.update', // my own backend
             data: {script: payload},
             headers:{
                 'Content-Type': 'application/json',
-                '_id': '59085002acd0a63cdf24842e',
+                // '_id': '59085002acd0a63cdf24842e', // my own ID
+                '_id': '59083916220e11b48b44b174' // UFO ID
             }
         })
             .then((response) => {
@@ -537,7 +548,9 @@ class BoxForm extends Component {
 
         return (
 
-            <div>
+            <MuiThemeProvider muiTheme={getMuiTheme(darkBaseTheme)}>
+                <div>
+                    <AppBar title="Chatbot Editor" />
 
                 { !!this.state.isTreeDisplay && !!this.state.branchTree && (
                     <div className="treewrapper">
@@ -555,19 +568,21 @@ class BoxForm extends Component {
                         return <div key={error} className="error">{error}</div>
                     }) : '' }</div>
 
-                    <div className="col-md-2">{ this.state.current != "" ? <div>
-                            <div>Name: {this.state.current.name}</div>
-                            <div>From: {this.state.current.from}</div>
-                            <div>To: {this.state.current.to}</div>
+                    <Card className="col-md-4">{ this.state.current != "" ? <div>
+                            <CardTitle title="Current Branch"/>
+                            <CardText>
+                                ID: {this.state.current.id} <br/>
+                                Name: {this.state.current.name}</CardText>
+                            <CardText>Options: {this.state.current.options}</CardText>
                             {/*<div>Parent Branch: {this.state.current.parentID}</div>*/}
-                            <div>Message: {this.state.current.botMsg}</div>
-                            <div>Listen For: {this.state.current.listener.map( item => {
-                                return <div key={item.toState}>{item.toState}</div>
-                            })}</div>
+                            <CardText>Message: {this.state.current.botMsg}</CardText>
+                            <CardText>Listen For: {this.state.current.listener.map( item => {
+                                return <CardText key={item.toState}>To State: {item.toState}<br/> User Response: {item.usrResponse}</CardText>
+                            })}</CardText>
                         </div>
 
                         : ''}
-                    </div>
+                    </Card>
 
                     <EditingForm
                         onSubmit={this.onEditingFormSubmit}
@@ -591,6 +606,12 @@ class BoxForm extends Component {
                             <div>Message:
                                 <input
                                     ref={el => this.rootbotMsgEl = el}
+
+                                />
+                            </div>
+                            <div>Options:
+                                <input
+                                    ref={el => this.rootoptionsEl = el}
 
                                 />
                             </div>
@@ -619,6 +640,7 @@ class BoxForm extends Component {
                     </div>
                 </div>
             </div>
+            </MuiThemeProvider>
 
         )
 

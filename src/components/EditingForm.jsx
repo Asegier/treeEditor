@@ -46,7 +46,8 @@ class EditingForm  extends Component {
             this[`rootlistenusrResponseEl_${i}`] && (this[`rootlistenusrResponseEl_${i}`].value = listener.usrResponse);
         }));
         this.rootEditfEl && (this.rootEditfromEl.value = this.props.editing.from);
-        this.rootEditfromEl && (this.rootEditfromEl.value = this.props.editing.from);
+        this.rootEditoptionsEl && (this.rootEditoptionsEl.value = this.props.editing.options);
+        this.rootEditbotMsgEl && (this.rootEditbotMsgEl.value = this.props.editing.botMsg);
     }
 
     onEditSubmit = e => {
@@ -58,7 +59,7 @@ class EditingForm  extends Component {
         let editNode = Object.assign({}, this.props.editing);
 
         editNode.name = this.rootEditNameEl.value;
-        editNode.from = this.rootEditfromEl.value;
+        editNode.options = this.rootEditoptionsEl.value;
         editNode.botMsg = this.rootEditbotMsgEl.value;
         this.state.newListeners.map( (listener,i )=> {
             editNode.listener[i].toState = this[`rootlistentoStateEl_${i}`].value;
@@ -108,6 +109,12 @@ class EditingForm  extends Component {
                                 <input className="form-control"
                                        ref={el => this.rootEditbotMsgEl = el}
                                        defaultValue={this.props.editing.botMsg}
+                                />
+                            </div>
+                            <div className="form-group">Options:
+                                <input className="form-control"
+                                       ref={el => this.rootEditoptionsEl = el}
+                                       defaultValue={this.props.editing.options}
                                 />
                             </div>
                             { this.state.newListeners.map( (listener,i )=> {
