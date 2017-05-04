@@ -104,15 +104,17 @@ body {
   font-size: 13px;
 }
 
-.boxForm {
+.editForm {
+  padding: 20px;
+
+}
+
+.addForm {
   padding: 20px;
 }
 
 .treewrapper {
   background-color: grey;
-}
-
-.everythingelse {
 }
 
 .form-group {
@@ -137,9 +139,11 @@ body {
   opacity: 1;
 }
 
-.cardText {
-  padding-left: 10px;
-  padding-top: 0px;
-  padding-bottom: 0px;
-  padding-right: 0px;
+.m-node .inner .fa:hover {
+  text-shadow: 0px 0px 10px black;
+  color: #fff !important;
+}
+
+body{
+  background: grey;
 }

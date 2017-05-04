@@ -9,12 +9,22 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import AppBar from 'material-ui/AppBar';
 import {Card, CardActions, CardHeader, CardText, CardTitle } from 'material-ui/Card'
+import injectTapEventPlugin from 'react-tap-event-plugin';
+
+import MenuItem from 'material-ui/MenuItem';
+import Drawer from 'material-ui/Drawer';
+import Chip from 'material-ui/Chip';
+
+import TextField from 'material-ui/TextField'
+
 
 import IconButton from 'material-ui/IconButton';
 
 const axios = require('axios');
 
 const uuidV1 = require('uuid/v1');
+
+injectTapEventPlugin();
 
 class BoxForm extends Component {
 
@@ -28,7 +38,10 @@ class BoxForm extends Component {
             editing: "",
             branchTree: {},
             isTreeDisplay: true,
-            newListeners: [{}]
+            newListeners: [{}],
+            value: 10,
+            drawerOpen: false,
+            adding: false
         }
 
 
@@ -201,7 +214,7 @@ class BoxForm extends Component {
         // axios({
         //     method: 'POST',
         //     url: 'http://localhost:3002/api/script.create',
-        //     data: {script: JSON.stringify(flatten(branches)), title: "botthing"},
+        //     data: {script: JSON.stringify(branches), title: "botthing"},
         //     headers:{
         //         'Content-Type': 'application/json'
         //
@@ -214,12 +227,12 @@ class BoxForm extends Component {
         //         console.log("response from axios put error: ", error)
         //     });
         //
-        // console.log("this.arrayToTree(branches)", this.arrayToTree(branches));
+        // console.log("flatten(branches)", branches);
 
         //var self = this;
 
-        axios.get('http://localhost:3002/api/script.get') // personal
-        // axios.get('http://192.168.100.105:3003/api/script.get')
+        // axios.get('http://localhost:3002/api/script.get') // personal
+        axios.get('http://192.168.100.105:3003/api/script.get')
             .then( response => {
                 console.log("AXIOSSSS!!!", response.data[0].script);
                 var branchTree = this.arrayToTree(JSON.parse(response.data[0].script));
@@ -250,8 +263,27 @@ class BoxForm extends Component {
     };
 
     componentDidMount = () => {
-        console.log("componentDidMount state.branchTree: ", this.state.branchTree)
-}
+        console.log("componentDidMount state.branchTree: ", this.state.branchTree);
+
+        if(!this.keyupListener) {
+            window.document.addEventListener('keyup', this.handleKeyup, false);
+        }
+        this.keyupListener = true;
+    }
+
+    componentWillUnmount = () => {
+        window.document.removeEventListener('keyup', this.handleKeyup, false);
+        this.keyupListener = false;
+    }
+
+    handleKeyup = e => {
+        if(e.which===27){ // ESC
+            this.setState({drawerOpen: !this.state.drawerOpen});
+        }
+    }
+
+
+
     // add new item
     onSubmit = (e) => {
         e.preventDefault();
@@ -286,7 +318,7 @@ class BoxForm extends Component {
         let newBranch = {
             id: uuidV1(),
             name: this.rootNameEl.value,
-            from: this.rootfromEl.value,
+            // from: this.rootfromEl.value,
             botMsg: this.rootbotMsgEl.value,
             options: this.rootoptionsEl.value,
             listener: []
@@ -366,27 +398,48 @@ class BoxForm extends Component {
     // Template for an item of the tree
     renderNode = item => {
         //console.log('ITEM', item )
-        return <Card onClick={this.handleCurrent.bind(this, item)} title={item.name}>
-            <CardHeader title={item.name} />
-
-            <CardActions>
+        let iconStyle={ fontSize: '14px'}
+        let iconButtonStyle = {width:25, height: 20, padding: '0 5px', lineHeight: 15};
+        return (
+            <div style={{display: 'flex', alignItems: 'center'}}>
+            <Chip style={{margin: 2}}>
+                <span style={{paddingRight: 10}}
+                    onClick={this.handleCurrent.bind(this, item)}>{item.name}</span>
                 <IconButton
+                    style={iconButtonStyle}
+                    iconStyle={iconStyle}
                     onClick={this.handleEdit.bind(this, item)}
                     iconClassName="fa fa-pencil"
                 />
                 <IconButton
+                    style={iconButtonStyle}
+                    iconStyle={iconStyle}
                     onClick={this.handleDelete.bind(this, item)}
                     iconClassName="fa fa-times-circle"
                 />
-            </CardActions>
-            {/*<button className="btn btn-default" onClick={this.handleEdit.bind(this, item)}>
-                <i className="fa fa-pencil" aria-hidden="true"></i>
-            </button>
-            <button className="btn btn-default" onClick={this.handleDelete.bind(this, item)}>
-                <i className="fa fa-times-circle" aria-hidden="true"></i>
-            </button>*/}
+                {/*<CardHeader title={item.name} />*/}
 
-        </Card>
+                {/*<CardActions>
+                    <IconButton
+                        onClick={this.handleEdit.bind(this, item)}
+                        iconClassName="fa fa-pencil"
+                    />
+                    <IconButton
+                        onClick={this.handleDelete.bind(this, item)}
+                        iconClassName="fa fa-times-circle"
+                    />
+                </CardActions>*/}
+                {/*<button className="btn btn-default" onClick={this.handleEdit.bind(this, item)}>
+                    <i className="fa fa-pencil" aria-hidden="true"></i>
+                </button>
+                <button className="btn btn-default" onClick={this.handleDelete.bind(this, item)}>
+                    <i className="fa fa-times-circle" aria-hidden="true"></i>
+                </button>*/}
+
+            </Chip>
+                <i className="fa fa-bars" />
+            </div>
+        )
     };
 
     handleDropdown = (e) => {
@@ -396,7 +449,7 @@ class BoxForm extends Component {
 
     handleEdit = (item, e) => {
         console.log('Editing', item);
-        this.setState({editing: item});
+        this.setState({editing: item, drawerOpen: true, adding: false});
 
 
     };
@@ -421,7 +474,7 @@ class BoxForm extends Component {
         e.preventDefault();
 
         console.log('ITEM', item);
-        this.setState({current: item})
+        this.setState({current: item, drawerOpen: true, editing: '', adding: false})
     }
 
     handleChange = treeObject => {
@@ -438,7 +491,7 @@ class BoxForm extends Component {
         let editNode = Object.assign({}, this.state.editing);
 
         editNode.name = this.rootEditNameEl.value;
-        editNode.from = this.rootEditfromEl.value;
+        // editNode.from = this.rootEditfromEl.value;
         editNode.botMsg = this.rootEditbotMsgEl.value;
         editNode.options = this.rootEditoptionsEl.value;
 
@@ -509,7 +562,7 @@ class BoxForm extends Component {
             data: {script: payload},
             headers:{
                 'Content-Type': 'application/json',
-                // '_id': '59085002acd0a63cdf24842e', // my own ID
+                // '_id': '5909d28615567b055ca56599', // my own ID
                 '_id': '59083916220e11b48b44b174' // UFO ID
             }
         })
@@ -529,7 +582,7 @@ class BoxForm extends Component {
         branchTree = this.updateItemById(branchTree, editNode);
 
         console.log('UPDATED TREE', branchTree);
-        this.setState({branchTree, editing: ''});
+        this.setState({branchTree, editing: '', current: ''});
 
         this.updateBackEnd(branchTree);
 
@@ -542,15 +595,31 @@ class BoxForm extends Component {
         this.setState({      newListeners     })
     }
 
+    handleToggle = () => this.setState({open: !this.state.open});
+
+
     render() {
 
-        console.log("this.state.", this.state.branchTree)
+        console.log("this.state.", this.state.branchTree);
+
+        const items = [];
+        for (let i = 0; i < 100; i++ ) {
+            items.push(<MenuItem value={i} key={i} primaryText={`Item ${i}`} />);
+        }
 
         return (
 
-            <MuiThemeProvider muiTheme={getMuiTheme(darkBaseTheme)}>
+            <MuiThemeProvider>
                 <div>
-                    <AppBar title="Chatbot Editor" />
+                    <AppBar title="Chatbot Editor"
+                            iconElementRight={<IconButton
+
+                                onClick={()=> this.setState({adding: true, editing: '', drawerOpen: true})}
+                                iconClassName="fa fa-plus"
+                            />
+
+                                }
+                        />
 
                 { !!this.state.isTreeDisplay && !!this.state.branchTree && (
                     <div className="treewrapper">
@@ -563,81 +632,103 @@ class BoxForm extends Component {
                         />
                     </div>
                 ) }
-                <div className="everythingelse row">
-                    <div>{ this.state.errors.length > 0 ? this.state.errors.map( error => {
-                        return <div key={error} className="error">{error}</div>
-                    }) : '' }</div>
-
-                    <Card className="col-md-4">{ this.state.current != "" ? <div>
-                            <CardTitle title="Current Branch"/>
-                            <CardText>
-                                ID: {this.state.current.id} <br/>
-                                Name: {this.state.current.name}</CardText>
-                            <CardText>Options: {this.state.current.options}</CardText>
-                            {/*<div>Parent Branch: {this.state.current.parentID}</div>*/}
-                            <CardText>Message: {this.state.current.botMsg}</CardText>
-                            <CardText>Listen For: {this.state.current.listener.map( item => {
-                                return <CardText key={item.toState}>To State: {item.toState}<br/> User Response: {item.usrResponse}</CardText>
-                            })}</CardText>
-                        </div>
-
-                        : ''}
-                    </Card>
-
-                    <EditingForm
-                        onSubmit={this.onEditingFormSubmit}
-                        editing={this.state.editing}
-                    />
-
-                    <div className="col-md-4"> <h3>Add:</h3>
-                        <form className="boxForm"
-                              onSubmit={this.onSubmit}
+                <div className="everythingelse">
+                    <Drawer
+                        width={400}
+                        openSecondary={true}
+                        open={this.state.drawerOpen}
+                        style={{background: "black"}}
                         >
-                            <div>Name:
-                                <input
-                                    ref={el => this.rootNameEl = el}
-                                />
-                            </div>
-                            <div>From:
-                                <input
-                                    ref={el => this.rootfromEl = el}
-                                />
-                            </div>
-                            <div>Message:
-                                <input
-                                    ref={el => this.rootbotMsgEl = el}
+                        <IconButton
+                            className="pull-left"
+                            onClick={()=> this.setState({adding: true, editing: ''})}
+                            iconClassName="fa fa-plus"
+                            />
+                        <IconButton
+                            className="pull-right"
+                            onClick={()=>this.setState({drawerOpen:false})}
+                            iconClassName="fa fa-times-circle"
+                        />
 
-                                />
-                            </div>
-                            <div>Options:
-                                <input
-                                    ref={el => this.rootoptionsEl = el}
+                        <div>{ this.state.errors.length > 0 ? this.state.errors.map( error => {
+                            return <div key={error} className="error">{error}</div>
+                        }) : '' }</div>
 
-                                />
+                        <Card>{ this.state.current != "" ? <div>
+                                <CardTitle title="Current Branch"/>
+                                <CardText>
+                                    ID: {this.state.current.id} <br/>
+                                    Name: {this.state.current.name}</CardText>
+                                <CardText>Options: {this.state.current.options}</CardText>
+                                {/*<div>Parent Branch: {this.state.current.parentID}</div>*/}
+                                <CardText>Message: {this.state.current.botMsg}</CardText>
+                                <CardText>Listen For: {this.state.current.listener.map( (listener,i) => {
+                                    let branch = this.findItemById(this.state.branchTree, listener.toState);
+                                    return branch ? <CardText key={i}>To State: {branch.name}<br/> User Response: {listener.usrResponse}</CardText> : '';
+                                })}</CardText>
                             </div>
 
-                        { this.state.newListeners.map( (listener,i )=> {
-                            return (
-                                <div key={i}>Listen For:
-                                    <div> To State:
+                            : ''}
+                        </Card>
+
+                        { this.state.editing ? <EditingForm
+                            onSubmit={this.onEditingFormSubmit}
+                            allBranches={this.state.branchTree}
+                            editing={this.state.editing}
+                        /> : '' }
+                            { this.state.adding ? (
+
+                                <form className="addForm"
+                                      onSubmit={this.onSubmit}
+                                ><h3>Add:</h3>
+
+                                        <TextField
+                                            ref={el => { this.rootNameEl = el&&el.input }}
+                                            floatingLabelText="Name"
+                                        />
+
+                                    {/*<div>From:*/}
+                                        {/*<input*/}
+                                            {/*ref={el => this.rootfromEl = el}*/}
+                                        {/*/>*/}
+                                    {/*</div>*/}
+                                    <div>Message:
                                         <input
-                                            ref={el => this[`rootlistentoStateEl_${i}`] = el}
+                                            ref={el => this.rootbotMsgEl = el}
+
                                         />
                                     </div>
-                                    <div> User Response:
+                                    <div>Options:
                                         <input
-                                            ref={el => this[`rootlistenusrResponseEl_${i}`] = el}
+                                            ref={el => this.rootoptionsEl = el}
+
                                         />
                                     </div>
-                                </div>
-                            )
-                        } )}
+
+                                { this.state.newListeners.map( (listener,i )=> {
+                                    return (
+                                        <div key={i}>Listen For:
+                                            <div> To State:
+                                                <input
+                                                    ref={el => this[`rootlistentoStateEl_${i}`] = el}
+                                                />
+                                            </div>
+                                            <div> User Response:
+                                                <input
+                                                    ref={el => this[`rootlistenusrResponseEl_${i}`] = el}
+                                                />
+                                            </div>
+                                        </div>
+                                    )
+                                } )}
 
 
-                            <a className="btn btn-default" onClick={this.handleAddNewListener}>Add New Listener</a>
-                            <div><input type="submit"/></div>
-                        </form>
-                    </div>
+
+                                    <a className="btn btn-default" onClick={this.handleAddNewListener}>Add New Listener</a>
+                                    <div><input type="submit"/></div>
+                                </form>
+                            ) : '' }
+                    </Drawer>
                 </div>
             </div>
             </MuiThemeProvider>
