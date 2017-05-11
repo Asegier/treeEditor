@@ -119,34 +119,57 @@ class EditingForm  extends Component {
                         <form className="editForm"
                               onSubmit={this.onEditSubmit}
                         ><h3>Edit:</h3>
-                            <div className="form-group">Name:
-                                <input className="form-control"
-                                       ref={el => this.rootEditNameEl = el}
-                                       defaultValue={this.props.editing.name}
-                                />
-                            </div>
+
+                            <TextField
+                                ref={el => {this.rootEditNameEl = el&&el.input}}
+                                floatingLabelText="Label"
+                                defaultValue={this.props.editing.name}
+                            />
+
+                            {/*<div className="form-group">Name:*/}
+                                {/*<input className="form-control"*/}
+                                       {/*ref={el => this.rootEditNameEl = el}*/}
+                                       {/*defaultValue={this.props.editing.name}*/}
+                                {/*/>*/}
+                            {/*</div>*/}
+
                             {/*<div className="form-group">From:*/}
                                 {/*<input className="form-control"*/}
                                        {/*ref={el => this.rootEditfromEl = el}*/}
                                        {/*defaultValue={this.props.editing.from}*/}
                                 {/*/>*/}
                             {/*</div>*/}
-                            <div className="form-group">Message:
-                                <input className="form-control"
-                                       ref={el => this.rootEditbotMsgEl = el}
-                                       defaultValue={this.props.editing.botMsg}
-                                />
-                            </div>
-                            <div className="form-group">Options:
-                                <input className="form-control"
-                                       ref={el => this.rootEditoptionsEl = el}
-                                       defaultValue={this.props.editing.options}
-                                />
-                            </div>
+
+                            <TextField
+                                ref={el => {this.rootEditbotMsgEl = el&&el.input}}
+                                floatingLabelText="Message"
+                                defaultValue={this.props.editing.botMsg}
+                            />
+
+                            {/*<div className="form-group">Message:*/}
+                                {/*<input className="form-control"*/}
+                                       {/*ref={el => this.rootEditbotMsgEl = el}*/}
+                                       {/*defaultValue={this.props.editing.botMsg}*/}
+                                {/*/>*/}
+                            {/*</div>*/}
+
+                            <TextField
+                                ref={el => {this.rootEditoptionsEl = el&&el.input}}
+                                floatingLabelText="Options"
+                                defaultValue={this.props.editing.options}
+                            />
+
+                            {/*<div className="form-group">Options:*/}
+                                {/*<input className="form-control"*/}
+                                       {/*ref={el => this.rootEditoptionsEl = el}*/}
+                                       {/*defaultValue={this.props.editing.options}*/}
+                                {/*/>*/}
+                            {/*</div>*/}
+
                             { this.state.newListeners.map( (listener,i )=> {
                                 return (
                                     <div key={i}>
-                                        <p>Listen For:</p>
+                                        {/*<p>Listen For:</p>*/}
 
                                         <SelectField
                                             floatingLabelText="To State"
@@ -171,8 +194,8 @@ class EditingForm  extends Component {
                             } )}
 
 
-                            <a className="btn btn-default" onClick={this.handleAddNewListener}>Add New Listener</a>
-                            <div><input type="submit"/></div>
+                            <a className="btn btn-default submitButton" onClick={this.handleAddNewListener}>Add New Listener</a>
+                            <div><input className="submitButton" type="submit"/></div>
                         </form> ) : ''
                     }
                 </div>

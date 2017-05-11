@@ -108,20 +108,22 @@ class BoxForm extends Component {
     deleteItem = (element, itemToDelete) => {
         //console.log('[updateItemById] start', element, updatedChild)
 
-        if (element.children != null){
+        if (element.children != null){ // If there are children
             let i, result = null;
-            for(i=0; i < element.children.length; i++){
-                if(element.children[i].id === itemToDelete.id) {
+            for(i=0; i < element.children.length; i++){  // Loops through all the Children
 
-                    element.children.splice(i, 1); // Delete element
-                    console.log('DELETED', element)
+                // if each childs ID is equal to ID specified to delete
+                if(element.children[i].id === itemToDelete.id) {
+                    element.children.splice(i, 1); // Delete the child
+                    // console.log('DELETED', element)
                 } else {
+                    // Reiterate over Children of Children
                     this.deleteItem(element.children[i], itemToDelete);
                 }
             }
         }
 
-        console.log('[deleteItem]', element)
+        // console.log('[deleteItem]', element)
         this.updateBackEnd(element)
         return element; // return the tree back
     }
@@ -291,7 +293,7 @@ class BoxForm extends Component {
 
         let errors = [];
         if(!this.rootNameEl.value){
-            errors.push("Please fill the Branch Element");
+            errors.push("Please fill in the Label Field");
         }
         // if(!this.rootfromEl.value){
         //     errors.push("Please fill the From Element");
@@ -300,7 +302,7 @@ class BoxForm extends Component {
         //     errors.push("Please fill the Listener toState Element");
         // }
         if(!this.rootbotMsgEl.value){
-            errors.push("Please fill the Message Element");
+            errors.push("Please fill in the Message to the User");
         }
         // if(!this.rootlistenusrResponseEl.value){
         //     errors.push("Please fill the Listener usrResponse Element");
@@ -324,12 +326,12 @@ class BoxForm extends Component {
             listener: []
         };
 
-        this.state.newListeners.map((listener, i) => {
-            newBranch.listener.push({
-                toState: this[`rootlistentoStateEl_${i}`].value,
-                usrResponse: this[`rootlistenusrResponseEl_${i}`].value
-            })
-        });
+        // this.state.newListeners.map((listener, i) => {
+        //     newBranch.listener.push({
+        //         toState: this[`rootlistentoStateEl_${i}`].value,
+        //         usrResponse: this[`rootlistenusrResponseEl_${i}`].value
+        //     })
+        // });
 
 
         let branchTree = Object.assign({}, this.state.branchTree);
@@ -574,6 +576,8 @@ class BoxForm extends Component {
             });
     }
 
+    // Update Database when Edit Form is submitted
+
     onEditingFormSubmit = (editNode) => {
         // save the date with setState etc.
 
@@ -655,17 +659,21 @@ class BoxForm extends Component {
                         }) : '' }</div>
 
                         <Card>{ this.state.current != "" ? <div>
-                                <CardTitle title="Current Branch"/>
+                                <CardTitle onClick={() => {this.setState({current: ""})}} title="Current Branch"/>
                                 <CardText>
-                                    ID: {this.state.current.id} <br/>
-                                    Name: {this.state.current.name}</CardText>
-                                <CardText>Options: {this.state.current.options}</CardText>
+                                    {/*ID: {this.state.current.id} <br/>*/}
+                                    Label: {this.state.current.name} <br/> <br/>
+                                Options: {this.state.current.options} <br/> <br/>
                                 {/*<div>Parent Branch: {this.state.current.parentID}</div>*/}
-                                <CardText>Message: {this.state.current.botMsg}</CardText>
-                                <CardText>Listen For: {this.state.current.listener.map( (listener,i) => {
+                                Message: {this.state.current.botMsg} <br/><br/>
+
+                                Listen For: {this.state.current.listener.map( (listener,i) => {
                                     let branch = this.findItemById(this.state.branchTree, listener.toState);
                                     return branch ? <CardText key={i}>To State: {branch.name}<br/> User Response: {listener.usrResponse}</CardText> : '';
-                                })}</CardText>
+                                })}
+
+                                </CardText>
+
                             </div>
 
                             : ''}
@@ -680,11 +688,11 @@ class BoxForm extends Component {
 
                                 <form className="addForm"
                                       onSubmit={this.onSubmit}
-                                ><h3>Add:</h3>
+                                ><h3>Add New Branch:</h3>
 
                                         <TextField
                                             ref={el => { this.rootNameEl = el&&el.input }}
-                                            floatingLabelText="Name"
+                                            floatingLabelText="Branch Name"
                                         />
 
                                     {/*<div>From:*/}
@@ -692,40 +700,50 @@ class BoxForm extends Component {
                                             {/*ref={el => this.rootfromEl = el}*/}
                                         {/*/>*/}
                                     {/*</div>*/}
-                                    <div>Message:
-                                        <input
-                                            ref={el => this.rootbotMsgEl = el}
-
+                                    <TextField
+                                        ref={el => {this.rootbotMsgEl = el&&el.input}}
+                                        floatingLabelText="Message to the User"
                                         />
-                                    </div>
-                                    <div>Options:
-                                        <input
-                                            ref={el => this.rootoptionsEl = el}
 
-                                        />
-                                    </div>
+                                    {/*<div>Message:*/}
+                                        {/*<input*/}
+                                            {/*ref={el => this.rootbotMsgEl = el}*/}
 
-                                { this.state.newListeners.map( (listener,i )=> {
-                                    return (
-                                        <div key={i}>Listen For:
-                                            <div> To State:
-                                                <input
-                                                    ref={el => this[`rootlistentoStateEl_${i}`] = el}
-                                                />
-                                            </div>
-                                            <div> User Response:
-                                                <input
-                                                    ref={el => this[`rootlistenusrResponseEl_${i}`] = el}
-                                                />
-                                            </div>
-                                        </div>
-                                    )
-                                } )}
+                                        {/*/>*/}
+                                    {/*</div>*/}
+
+                                    <TextField
+                                        ref={el => {this.rootoptionsEl = el&&el.input}}
+                                        floatingLabelText="Options (wiki/solr)"
+                                    />
+                                    {/*<div>Options:*/}
+                                        {/*<input*/}
+                                            {/*ref={el => this.rootoptionsEl = el}*/}
+
+                                        {/*/>*/}
+                                    {/*</div>*/}
+
+                                {/*{ this.state.newListeners.map( (listener,i )=> {*/}
+                                    {/*return (*/}
+                                        {/*<div key={i}>Listen For:*/}
+                                            {/*<div> To State:*/}
+                                                {/*<input*/}
+                                                    {/*ref={el => this[`rootlistentoStateEl_${i}`] = el}*/}
+                                                {/*/>*/}
+                                            {/*</div>*/}
+                                            {/*<div> User Response:*/}
+                                                {/*<input*/}
+                                                    {/*ref={el => this[`rootlistenusrResponseEl_${i}`] = el}*/}
+                                                {/*/>*/}
+                                            {/*</div>*/}
+                                        {/*</div>*/}
+                                    {/*)*/}
+                                {/*} )}*/}
 
 
 
-                                    <a className="btn btn-default" onClick={this.handleAddNewListener}>Add New Listener</a>
-                                    <div><input type="submit"/></div>
+                                    {/*<a className="btn btn-default" onClick={this.handleAddNewListener}>Add New Listener</a>*/}
+                                    <div><input className="submitButton" type="submit"/></div>
                                 </form>
                             ) : '' }
                     </Drawer>
