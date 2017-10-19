@@ -63,7 +63,7 @@
   
   **Removing a Branch**
   
-  1.  Click on the X on the branch that you would like to delete **keep in mind that the branch will delete ALL OF ITS CHILDREN and subbranches**
+  1.  Click on the X on the branch that you would like to delete keep in mind that the deleting a branch will delete **ALL OF ITS CHILDREN and subbranches**
 
 
   ## <-- Below is Create React App Documentation -->
