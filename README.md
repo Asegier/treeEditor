@@ -42,6 +42,29 @@
   ## Usage
   
   The editor should have preloaded branches when it is successfully connected to the SolarLEAP WiFi Router Digital Library.
+  
+  Please check to see this is the case.
+  
+  **Adding a new branch**
+  
+  1.  Press the Escape Key or the + sign at the top right
+  
+  2.  Click on Add New Branch
+  
+  3.  Type in relevant data such as branch name, where you want the branch to point towards.
+  
+  4.  Drag the branch after it is created to the correct branch location, making sure that the branch pointers **point to the correct location and do not break**
+  
+  **Editing a Branch**
+  
+  1.  Click on the Pencil on the branch that you would like to edit
+  
+  2.  The sidebar on the right should slide out and you can edit relevant data and click Submit
+  
+  **Removing a Branch**
+  
+  1.  Click on the X on the branch that you would like to delete **keep in mind that the branch will delete ALL OF ITS CHILDREN and subbranches**
+
 
   ## <-- Below is Create React App Documentation -->
 
