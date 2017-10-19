@@ -1,3 +1,50 @@
+  ## Getting Started
+  
+  If you do not have Git, please install first.  Also install npm.  You will need to use Google Chrome and also install the CORS Extension in order to run this program.
+  
+  Afterwards, clone this project to your computer directory by clicking on the Clone button on the top right.  After cloning, you may choose to run the program by using `npm start`.  You can view the editor by going to `localhost:3000` (type it into your browser).  Stop the program by pressing CTRL + C in the console.
+  
+  This Editor is meant to run in tandem with Myanbot, and therefore will produce no data when run alone.  Please connect to a SolarLEAP Digital Hub in order to access the Myanbot data stored inside.
+  
+  ## Installation and Setup (for newbies)
+  
+  
+**Git**
+
+  1.  Install Git (https://git-scm.com/downloads)
+  
+  2.  After installing, run CMD (Windows -> Hit Windows Key -> Type "cmd") or Terminal (Mac -> Applications -> Utility)
+  
+  3.  Press ls (Mac) or dir (Windows) to see the list of files and folders in your current folder and using cd, go to a relevant folder (for example, if Documents is a folder in your current folder, you can type in "cd Documents") and then type in `git clone https://github.com/Asegier/treeEditor.git` 
+  
+**Node and NPM**
+
+  1.  Install Node (https://nodejs.org/en/)
+  
+  2.  After installing, open up Command Line (CMD) or Terminal and type in `node -v` and `npm -v` to check that you have both running.  You may have to restart your cmd or terminal if you had it open during installation.
+  
+  3.  Navigate to the folder in cmd or Terminal where you have Git Cloned (called treeEditor) and type in `npm install`.
+  
+  
+  ## Steps to Startup the Editor
+
+
+  1.  Connect to a SolarLEAP WiFi Router (Digital Library) via WiFi
+  
+  2.  Turn on CORS on Google Chrome (If you have it on perpetually, turn it off and on again before running)
+  
+  3.  Go to the project folder in CMD or Terminal and `npm start`
+  
+  4.  Check `localhost:3000` in Chrome
+  
+  
+  
+  ## Usage
+  
+  The editor should have preloaded branches when it is successfully connected to the SolarLEAP WiFi Router Digital Library.
+
+  ## <-- Below is Create React App Documentation -->
+
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
 Below you will find some information on how to perform common tasks.<br>
